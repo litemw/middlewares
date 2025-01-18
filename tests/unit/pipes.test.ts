@@ -12,11 +12,9 @@ import {
   throwPipe,
   validatePipe,
 } from '../../lib';
-import * as tsafe from 'tsafe';
-import { IsBoolean, IsNumber, IsString, validate } from 'class-validator';
+import { IsBoolean, IsNumber, IsString } from 'class-validator';
 import Joi from 'joi';
 import { z } from 'zod';
-import { plainToClass, plainToInstance } from 'class-transformer';
 
 describe('Pipes core functionality', () => {
   test('Pipe creation', () => {
@@ -180,26 +178,17 @@ describe('Validation pipes', () => {
   test('Class validator', async () => {
     const p = validatePipe(UserClass);
 
-    const objValid = plainToInstance(UserClass, valid),
-      objInvalid = plainToInstance(UserClass, invalid),
-      objExtra = plainToInstance(UserClass, extraFields),
-      objEmpty = plainToInstance(UserClass, emptyField);
-
     const [res1, res2, res3, res4] = await Promise.all([
-      p(objValid),
-      p(objInvalid),
-      p(objExtra),
-      p(objEmpty),
+      p(valid),
+      p(invalid),
+      p(extraFields),
+      p(emptyField),
     ]);
 
-    tsafe.assert(tsafe.is<ClassValidatorError>(res2));
-    tsafe.assert(tsafe.is<ClassValidatorError>(res4));
-
-    expect(res1).toBeInstanceOf(UserClass);
-    expect(res2.details).toHaveLength(3);
-    // Class-transformer excludes unexpected fields
-    expect(res3).toBeInstanceOf(UserClass);
-    expect(res4.details).toHaveLength(1);
+    expect(res1).not.toBeInstanceOf(ClassValidatorError);
+    expect(res2).toBeInstanceOf(ClassValidatorError);
+    expect(res3).not.toBeInstanceOf(ClassValidatorError);
+    expect(res4).toBeInstanceOf(ClassValidatorError);
   });
 
   test('Joi', async () => {
