@@ -12,7 +12,7 @@ export function parseIntPipe(
   return pipe(_.toString)
     .pipe((val) => parseInt(val, radix))
     .pipe((val) => {
-      if (_.isInteger(val)) return err;
+      if (!_.isInteger(val)) return err;
       return val;
     });
 }
@@ -21,7 +21,7 @@ export function parseFloatPipe(err = new ParseError('Parse float pipe error')) {
   return pipe(_.toString)
     .pipe(parseFloat)
     .pipe((val) => {
-      if (!isFinite(val)) return err;
+      if (!_.isFinite(val)) return err;
       return val;
     });
 }
@@ -36,8 +36,8 @@ export function parseBoolPipe(err = new ParseError('Parse bool pipe error')) {
     });
 }
 
-export function defaultValuePipe<T, D>(defaultVal: D) {
-  return pipe((val) => val ?? defaultVal) as Pipe<T, T | D>;
+export function defaultValuePipe<D, T = D>(defaultVal: D) {
+  return pipe((val) => val ?? defaultVal) as Pipe<T | null | undefined, T | D>;
 }
 
 export function parseEnumPipe<E>(
