@@ -1,5 +1,5 @@
 import { Middleware } from '@litemw/router';
-import { identity, isFunction, isString } from 'lodash';
+import { identity, isFunction, isString } from 'lodash-es';
 import { pipe, PipeOrFunction } from '../pipes';
 import { Context } from 'koa';
 

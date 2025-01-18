@@ -1,4 +1,4 @@
-import { identity } from 'lodash';
+import { identity } from 'lodash-es';
 import { Pipe } from '../pipes';
 import { Middleware } from '@litemw/router';
 

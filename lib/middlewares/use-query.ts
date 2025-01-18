@@ -1,6 +1,6 @@
 import { Middleware } from '@litemw/router';
 import { pipe, PipeOrFunction } from '../pipes';
-import { identity, isFunction, isString } from 'lodash';
+import { identity, isFunction, isString } from 'lodash-es';
 import { Context } from 'koa';
 
 export function useQuery<const K extends string>(

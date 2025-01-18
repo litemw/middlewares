@@ -1,6 +1,6 @@
 import multer from '@koa/multer';
 import { Middleware } from '@litemw/router';
-import { fromPairs, identity, isFunction, isNumber, noop } from 'lodash';
+import { fromPairs, identity, isFunction, isNumber, noop } from 'lodash-es';
 import { Next } from 'koa';
 import { PipeOrFunction } from '../pipes';
 
