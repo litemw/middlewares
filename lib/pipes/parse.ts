@@ -50,16 +50,17 @@ export function parseEnumPipe<E>(
   }) as Pipe<unknown, E[keyof E] | ParseError>;
 }
 
-export function parseJSONPipe<T>(
+export function parseJSONPipe<T = any>(
   err = new ParseError('Parse array pipe error'),
-) {
+): Pipe<unknown, T | ParseError> {
   return pipe((val: unknown) => {
     if (_.isString(val)) {
       try {
         return JSON.parse(val);
-      } catch (err) {
-        return new ParseError('Parse json pipe error');
+      } catch (parseErr) {
+        err.cause = parseErr.cause;
+        return err;
       }
-    } else return new ParseError('Parse json pipe error');
-  }) satisfies Pipe<unknown, any | ParseError>;
+    } else return err;
+  }) satisfies Pipe<unknown, T | ParseError>;
 }

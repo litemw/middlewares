@@ -21,7 +21,7 @@ export function useFiles(options?: multer.Options) {
     pipe?: PipeOrFunction,
   ): Middleware<T, Record<F, any>> {
     const fn = pipe ?? identity;
-    return async (ctx, next) => {
+    return async (ctx) => {
       await upload.single(fieldName)(ctx, noop as Next);
       return { [fieldName]: fn(ctx.file) } as Record<F, any>;
     };
@@ -41,7 +41,7 @@ export function useFiles(options?: multer.Options) {
     pipe?: PipeOrFunction,
   ): Middleware<T, Record<F, any>> {
     const fn = pipe ?? identity;
-    return async (ctx, next) => {
+    return async (ctx) => {
       await upload.fields(fields)(ctx, noop as Next);
 
       return fromPairs(
@@ -81,7 +81,7 @@ export function useFiles(options?: multer.Options) {
     const fn = pipe ?? (isFunction(countOrPipe) ? countOrPipe : identity),
       maxCount = isNumber(countOrPipe) ? countOrPipe : undefined;
 
-    return async (ctx, next) => {
+    return async (ctx) => {
       await upload.array(name, maxCount)(ctx, noop as Next);
       return { [name]: fn(ctx.files) } as Record<F, any>;
     };
@@ -95,7 +95,7 @@ export function useFiles(options?: multer.Options) {
 
   function any<T>(pipe?: PipeOrFunction): Middleware<T, Record<'files', any>> {
     const fn = pipe ?? identity;
-    return async (ctx, next) => {
+    return async (ctx) => {
       await upload.any()(ctx, noop as Next);
       return { files: fn(ctx.files) as multer.File[] };
     };
