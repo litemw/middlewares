@@ -18,7 +18,7 @@ export interface ClassParams {
   validation: Partial<ValidatorOptions>;
 }
 
-export function validatePipe<C extends object>(
+export function validatePipe<C>(
   schema: z.Schema<C>,
   params?: Partial<z.ParseParams>,
 ): Pipe<any, Promise<C | z.ZodError>>;
