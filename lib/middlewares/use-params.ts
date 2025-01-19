@@ -5,22 +5,22 @@ import { Context } from 'koa';
 
 export function useParam<const K extends string>(
   key: K,
-): Middleware<any, Record<K, string>>;
+): Middleware<any, Record<K, string | undefined>>;
 
 export function useParam<const K extends string, T = string>(
   key: K,
-  pipe: PipeOrFunction<string, T>,
+  pipe: PipeOrFunction<string | undefined, T>,
 ): Middleware<any, Record<K, Awaited<T>>>;
 
 export function useParam<const K extends string>(
   key: K,
   paramKey: string,
-): Middleware<any, Record<K, string>>;
+): Middleware<any, Record<K, string | undefined>>;
 
 export function useParam<const K extends string, T = string>(
   key: K,
   paramKey: string,
-  pipe: PipeOrFunction<string, T>,
+  pipe: PipeOrFunction<string | undefined, T>,
 ): Middleware<any, Record<K, Awaited<T>>>;
 
 export function useParam(
