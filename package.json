@@ -63,7 +63,8 @@
     "koa-router": "^12",
     "@litemw/router": "^0.1.2",
     "joi": "*",
-    "class-validator": "*"
+    "class-validator": "*",
+    "zod": "*"
   },
   "peerDependenciesMeta": {
     "koa": {
@@ -80,6 +81,9 @@
     },
     "@litemw/router": {
       "optional": false
+    },
+    "zod": {
+      "optional": true
     },
     "joi": {
       "optional": true
