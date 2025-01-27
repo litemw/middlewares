@@ -1,5 +1,5 @@
-import * as _ from 'lodash-es';
 import { TransformFunction } from '../core';
+import { isFunction } from 'lodash-es';
 
 export type PipeOrFunction<I = unknown, O = unknown> =
   | TransformFunction<I, O>
@@ -42,17 +42,22 @@ function newFlatPipe(
 export function pipe<I = void, O = I>(
   pipeOrFnOrVal: PipeOrFunctionOrValue<I, O>,
 ): Pipe<I, O> {
-  const functionObj = !_.isFunction(pipeOrFnOrVal)
-    ? function () {
-        return pipeOrFnOrVal;
-      }
-    : pipeOrFnOrVal;
+  let fn: PipeOrFunction;
+  let baseMeta;
+  if (isFunction(pipeOrFnOrVal)) {
+    fn = pipeOrFnOrVal;
+    if ('metadata' in pipeOrFnOrVal) {
+      baseMeta = pipeOrFnOrVal.metadata;
+    }
+  } else {
+    fn = () => pipeOrFnOrVal;
+  }
 
-  const pipeObj = functionObj.bind({}) as Pipe;
+  const pipeObj = fn.bind({}) as Pipe;
 
   pipeObj.pipe = newPipe.bind(pipeObj) as Pipe['pipe'];
   pipeObj.flatPipe = newFlatPipe.bind(pipeObj) as Pipe['flatPipe'];
-  pipeObj.metadata = {};
+  pipeObj.metadata = baseMeta ?? {};
 
   return pipeObj as Pipe<I, O>;
 }
