@@ -13,7 +13,6 @@ import {
   validatePipe,
 } from '../../lib';
 import { IsBoolean, IsNumber, IsString } from 'class-validator';
-import Joi from 'joi';
 import { z } from 'zod';
 
 describe('Pipes core functionality', () => {
@@ -151,12 +150,6 @@ describe('Validation pipes', () => {
     status: boolean;
   }
 
-  const UserJoi = Joi.object<{ name: string; age: number; status: boolean }>({
-    name: Joi.string().required(),
-    age: Joi.number().required(),
-    status: Joi.boolean().required(),
-  });
-
   const UserZod = z
     .object({
       name: z.string(),
@@ -189,22 +182,6 @@ describe('Validation pipes', () => {
     expect(res2).toBeInstanceOf(ClassValidatorError);
     expect(res3).not.toBeInstanceOf(ClassValidatorError);
     expect(res4).toBeInstanceOf(ClassValidatorError);
-  });
-
-  test('Joi', async () => {
-    const p = validatePipe(UserJoi);
-
-    const [res1, res2, res3, res4] = await Promise.all([
-      p(valid),
-      p(invalid),
-      p(extraFields),
-      p(emptyField),
-    ]);
-
-    expect(res1).not.toBeInstanceOf(Joi.ValidationError);
-    expect(res2).toBeInstanceOf(Joi.ValidationError);
-    expect(res3).toBeInstanceOf(Joi.ValidationError);
-    expect(res4).toBeInstanceOf(Joi.ValidationError);
   });
 
   test('Zod', async () => {

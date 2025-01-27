@@ -1,5 +1,4 @@
 import { ClassSchema } from '../core';
-import Joi from 'joi';
 import { pipe, Pipe } from './core';
 import { validate, ValidationError, ValidatorOptions } from 'class-validator';
 import { z } from 'zod';
@@ -28,27 +27,11 @@ export function validatePipe<C extends object>(
   params?: ClassParams,
 ): Pipe<any, Promise<C | ClassValidatorError>>;
 
-export function validatePipe<C>(
-  schema: Joi.Schema<C>,
-  params?: Joi.AsyncValidationOptions,
-): Pipe<any, Promise<C | Joi.ValidationError>>;
-
 export function validatePipe(
-  schema: ClassSchema<object> | Joi.Schema | z.Schema,
-  options?: Partial<z.ParseParams> | ClassParams | Joi.AsyncValidationOptions,
+  schema: ClassSchema<object> | z.Schema,
+  options?: Partial<z.ParseParams> | ClassParams,
 ): Pipe<any, Promise<any>> {
-  if ('validateAsync' in schema) {
-    return pipe(async (obj: unknown) => {
-      try {
-        return await schema.validateAsync(
-          obj,
-          options as Joi.AsyncValidationOptions,
-        );
-      } catch (err) {
-        return err;
-      }
-    });
-  } else if ('safeParseAsync' in schema) {
+  if ('safeParseAsync' in schema) {
     return pipe(async (obj: unknown) => {
       const res = await schema.safeParseAsync(
         obj,
