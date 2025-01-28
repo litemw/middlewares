@@ -54,9 +54,10 @@ export function useQuery(
 
   const path = [MiddlwareMetaKeys.query, paramKey];
   mw[MetaKeys.metaCallback] = (router, handler) => {
-    set(router.metadata, path, meta);
     if (handler) {
       set(handler.metadata, path, meta);
+    } else {
+      set(router.metadata, path, meta);
     }
   };
 

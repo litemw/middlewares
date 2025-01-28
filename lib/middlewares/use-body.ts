@@ -20,9 +20,10 @@ export function useBody<C = any>(
   });
 
   mw[MetaKeys.metaCallback] = (router, handler) => {
-    set(router.metadata, [MiddlwareMetaKeys.requestBody], meta);
     if (handler) {
       set(handler.metadata, [MiddlwareMetaKeys.requestBody], meta);
+    } else {
+      set(router.metadata, [MiddlwareMetaKeys.requestBody], meta);
     }
   };
 

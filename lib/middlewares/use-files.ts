@@ -53,9 +53,10 @@ export function useFiles(options?: multer.Options) {
 
     const path = [MiddlwareMetaKeys.files, fieldName];
     mw[MetaKeys.metaCallback] = (router, handler) => {
-      set(router.metadata, path, meta);
       if (handler) {
         set(handler.metadata, path, meta);
+      } else {
+        set(router.metadata, path, meta);
       }
     };
 
@@ -100,9 +101,10 @@ export function useFiles(options?: multer.Options) {
     merge(meta, transform.metadata);
 
     mw[MetaKeys.metaCallback] = (router, handler) => {
-      merge(router.metadata, { [MiddlwareMetaKeys.files]: meta });
       if (handler) {
         merge(handler.metadata, { [MiddlwareMetaKeys.files]: meta });
+      } else {
+        merge(router.metadata, { [MiddlwareMetaKeys.files]: meta });
       }
     };
 
@@ -151,9 +153,10 @@ export function useFiles(options?: multer.Options) {
 
     const path = [MiddlwareMetaKeys.files, name];
     mw[MetaKeys.metaCallback] = (router, handler) => {
-      set(router.metadata, path, meta);
       if (handler) {
         set(handler.metadata, path, meta);
+      } else {
+        set(router.metadata, path, meta);
       }
     };
 
@@ -178,9 +181,10 @@ export function useFiles(options?: multer.Options) {
 
     const path = [MiddlwareMetaKeys.files, 'files'];
     mw[MetaKeys.metaCallback] = (router, handler) => {
-      set(router.metadata, path, meta);
       if (handler) {
         set(handler.metadata, path, meta);
+      } else {
+        set(router.metadata, path, meta);
       }
     };
 
