@@ -1,39 +1,57 @@
 import { pipe, Pipe } from './core';
 import * as _ from 'lodash-es';
+import { oas31 } from 'openapi3-ts';
 
 export class ParseError extends Error {
   name = 'ParseError';
 }
 
+const intSchema: { schema: oas31.SchemaObject } = {
+    schema: { type: 'integer' },
+  },
+  floatSchema: { schema: oas31.SchemaObject } = { schema: { type: 'number' } },
+  boolSchema: { schema: oas31.SchemaObject } = { schema: { type: 'boolean' } },
+  enumSchema: { schema: oas31.SchemaObject } = { schema: { enum: [] } },
+  jsonSchema: { schema: oas31.SchemaObject } = { schema: { type: 'object' } };
+
 export function parseIntPipe(
   radix = 10,
   err = new ParseError('Parse int pipe error'),
 ) {
-  return pipe(_.toString)
+  const parsePipe = pipe(_.toString)
     .pipe((val) => parseInt(val, radix))
     .pipe((val) => {
       if (!_.isInteger(val)) return err;
       return val;
     });
+
+  parsePipe.metadata = intSchema;
+  return parsePipe;
 }
 
 export function parseFloatPipe(err = new ParseError('Parse float pipe error')) {
-  return pipe(_.toString)
+  const parsePipe = pipe(_.toString)
     .pipe(parseFloat)
     .pipe((val) => {
       if (!_.isFinite(val)) return err;
       return val;
     });
+
+  parsePipe.metadata = floatSchema;
+  return parsePipe;
 }
 
 export function parseBoolPipe(err = new ParseError('Parse bool pipe error')) {
-  return pipe(_.toString)
+  const parsePipe = pipe(_.toString)
     .pipe((val) => _.toLower(val.toString()))
     .pipe((val) => {
       if (val === 'true') return true;
       else if (val === 'false') return false;
       else return err;
     });
+
+  parsePipe.metadata = boolSchema;
+  return parsePipe;
 }
 
 export function defaultValuePipe<D, T = D>(defaultVal: D) {
@@ -44,16 +62,19 @@ export function parseEnumPipe<E>(
   en: E,
   err = new ParseError('Parse enum pipe error'),
 ) {
-  return pipe((val) => {
+  const parsePipe = pipe((val) => {
     if (_.values(en).includes(val)) return val;
     else return err;
   }) as Pipe<unknown, E[keyof E] | ParseError>;
+
+  parsePipe.metadata = { ...enumSchema, schema: { enum: en } };
+  return parsePipe;
 }
 
 export function parseJSONPipe<T = any>(
   err = new ParseError('Parse array pipe error'),
 ): Pipe<unknown, T | ParseError> {
-  return pipe((val: unknown) => {
+  const parsePipe = pipe((val: unknown) => {
     if (_.isString(val)) {
       try {
         return JSON.parse(val);
@@ -63,4 +84,7 @@ export function parseJSONPipe<T = any>(
       }
     } else return err;
   }) satisfies Pipe<unknown, T | ParseError>;
+
+  parsePipe.metadata = jsonSchema;
+  return parsePipe;
 }
