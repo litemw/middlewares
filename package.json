@@ -1,6 +1,6 @@
 {
   "name": "@litemw/middlewares",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "VladDotH",
   "license": "MIT",
   "description": "Bunch of useful middlewares for litemw router",
@@ -20,41 +20,39 @@
     "lint:fix": "bun run lint --fix"
   },
   "dependencies": {
-    "@koa/multer": "^3",
+    "@koa/multer": "3.0.2",
     "@litemw/router": "^0.1.2",
-    "class-validator": "^0.14.1",
-    "class-transformer": "^0.5.1",
-    "reflect-metadata": "^0.2.2",
-    "joi": "^17.13.3",
-    "koa": "^2",
-    "koa-bodyparser": "^4",
-    "koa-router": "^12",
-    "lodash-es": "^4.17.21",
-    "zod": "^3.24.1"
+    "class-transformer": "0.5.1",
+    "class-validator": "0.14.1",
+    "class-validator-jsonschema": "5.0.1",
+    "koa": "2.15.3",
+    "koa-bodyparser": "4.4.1",
+    "koa-router": "12.0.1",
+    "lodash-es": "4.17.21",
+    "openapi3-ts": "4.4.0",
+    "reflect-metadata": "0.2.2",
+    "zod": "3.24.1",
+    "zod-openapi": "4.2.3"
   },
   "devDependencies": {
-    "@types/bun": "^1.1.17",
-    "@types/joi": "^17.2.3",
-    "@types/koa": "^2.13.8",
-    "@types/koa-bodyparser": "^4.3.12",
-    "@types/koa-router": "^7.4.8",
-    "@types/koa__multer": "^2.0.7",
-    "@types/lodash-es": "^4.17.12",
-    "@types/node": "^20.3.1",
-    "@types/supertest": "^6.0.2",
-    "@typescript-eslint/eslint-plugin": "^5.59.11",
-    "@typescript-eslint/parser": "^5.59.11",
-    "eslint": "^8.42.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "prettier": "^2.8.8",
-    "source-map-support": "^0.5.21",
-    "supertest": "^7.0.0",
-    "ts-jest": "^29.1.0",
-    "ts-node": "^10.9.1",
-    "tsafe": "^1.8.5",
-    "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.1.3"
+    "@types/bun": "1.2.1",
+    "@types/koa": "2.15.0",
+    "@types/koa-bodyparser": "4.3.12",
+    "@types/koa-router": "7.4.8",
+    "@types/koa__multer": "2.0.7",
+    "@types/lodash-es": "4.17.12",
+    "@types/node": "20.17.16",
+    "@types/supertest": "6.0.2",
+    "@typescript-eslint/eslint-plugin": "5.62.0",
+    "@typescript-eslint/parser": "5.62.0",
+    "eslint": "8.57.1",
+    "eslint-config-prettier": "8.10.0",
+    "eslint-plugin-prettier": "4.2.1",
+    "prettier": "2.8.8",
+    "supertest": "7.0.0",
+    "tsafe": "1.8.5",
+    "tsconfig-paths": "4.2.0",
+    "typescript": "5.7.3"
   },
   "peerDependencies": {
     "koa": "^2",
@@ -62,9 +60,10 @@
     "koa-bodyparser": "^4",
     "koa-router": "^12",
     "@litemw/router": "^0.1.2",
-    "joi": "*",
     "class-validator": "*",
-    "zod": "*"
+    "zod": "*",
+    "class-validator-jsonschema": "*",
+    "zod-openapi": "*"
   },
   "peerDependenciesMeta": {
     "koa": {
@@ -85,10 +84,13 @@
     "zod": {
       "optional": true
     },
-    "joi": {
+    "class-validator": {
       "optional": true
     },
-    "class-validator": {
+    "class-validator-jsonschema": {
+      "optional": true
+    },
+    "zod-openapi": {
       "optional": true
     }
   },
