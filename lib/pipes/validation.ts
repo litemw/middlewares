@@ -4,6 +4,9 @@ import { validate, ValidationError, ValidatorOptions } from 'class-validator';
 import { z } from 'zod';
 import 'reflect-metadata';
 import { ClassTransformOptions, plainToInstance } from 'class-transformer';
+import { targetConstructorToSchema } from 'class-validator-jsonschema';
+import type { IOptions } from 'class-validator-jsonschema/src/options';
+import { createSchema, CreateSchemaOptions } from 'zod-openapi';
 
 export class ClassValidatorError extends Error {
   name = 'ValidationError';
@@ -15,11 +18,12 @@ export class ClassValidatorError extends Error {
 export interface ClassParams {
   transform: Partial<ClassTransformOptions>;
   validation: Partial<ValidatorOptions>;
+  openapi: Partial<IOptions>;
 }
 
 export function validatePipe<C>(
   schema: z.Schema<C>,
-  params?: Partial<z.ParseParams>,
+  params?: Partial<z.ParseParams & CreateSchemaOptions>,
 ): Pipe<any, Promise<C | z.ZodError>>;
 
 export function validatePipe<C extends object>(
@@ -30,9 +34,11 @@ export function validatePipe<C extends object>(
 export function validatePipe(
   schema: ClassSchema<object> | z.Schema,
   options?: Partial<z.ParseParams> | ClassParams,
-): Pipe<any, Promise<any>> {
+) {
+  let validationPipe: Pipe;
+
   if ('safeParseAsync' in schema) {
-    return pipe(async (obj: unknown) => {
+    validationPipe = pipe(async (obj: unknown) => {
       const res = await schema.safeParseAsync(
         obj,
         options as Partial<z.ParseParams>,
@@ -40,8 +46,12 @@ export function validatePipe(
       if (res.success) return res.data;
       else return res.error;
     });
+    validationPipe.metadata = createSchema(
+      schema,
+      options as Partial<CreateSchemaOptions>,
+    );
   } else {
-    return pipe(async (obj: unknown) => {
+    validationPipe = pipe(async (obj: unknown) => {
       const validateObj = plainToInstance(
         schema,
         obj,
@@ -54,5 +64,14 @@ export function validatePipe(
       if (!res.length) return obj;
       return new ClassValidatorError(res);
     });
+
+    const schemas = targetConstructorToSchema(
+      schema,
+      (options as ClassParams).openapi,
+    );
+
+    validationPipe.metadata = { schema: schemas };
   }
+
+  return validationPipe;
 }
