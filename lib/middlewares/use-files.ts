@@ -2,6 +2,7 @@ import multer from '@koa/multer';
 import { MetaKeys, Middleware } from '@litemw/router';
 import {
   chain,
+  cloneDeep,
   fromPairs,
   identity,
   isFunction,
@@ -42,7 +43,7 @@ export function useFiles(options?: multer.Options) {
 
   function single(fieldName: string, pipeOrFn?: PipeOrFunction) {
     const transform = pipe(pipeOrFn ?? identity);
-    const meta = fileSchema;
+    const meta = cloneDeep(fileSchema);
     merge(meta, transform.metadata);
 
     const mw: Middleware = async (ctx) => {
@@ -54,7 +55,7 @@ export function useFiles(options?: multer.Options) {
     mw[MetaKeys.metaCallback] = (router, handler) => {
       set(router.metadata, path, meta);
       if (handler) {
-        set(handler, path, meta);
+        set(handler.metadata, path, meta);
       }
     };
 
@@ -152,7 +153,7 @@ export function useFiles(options?: multer.Options) {
     mw[MetaKeys.metaCallback] = (router, handler) => {
       set(router.metadata, path, meta);
       if (handler) {
-        set(handler, path, meta);
+        set(handler.metadata, path, meta);
       }
     };
 
@@ -167,7 +168,7 @@ export function useFiles(options?: multer.Options) {
 
   function any(pipeOrFn?: PipeOrFunction) {
     const transform = pipe(pipeOrFn ?? identity);
-    const meta = multipleFilesSchema;
+    const meta = cloneDeep(multipleFilesSchema);
     merge(meta, transform.metadata);
 
     const mw: Middleware = async (ctx) => {
@@ -179,7 +180,7 @@ export function useFiles(options?: multer.Options) {
     mw[MetaKeys.metaCallback] = (router, handler) => {
       set(router.metadata, path, meta);
       if (handler) {
-        set(handler, path, meta);
+        set(handler.metadata, path, meta);
       }
     };
 

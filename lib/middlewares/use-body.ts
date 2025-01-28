@@ -1,4 +1,4 @@
-import { identity, merge, set } from 'lodash-es';
+import { cloneDeep, identity, merge, set } from 'lodash-es';
 import { pipe, PipeOrFunction } from '../pipes';
 import { MetaKeys, Middleware } from '@litemw/router';
 import { MiddlwareMetaKeys } from '../metadata';
@@ -12,7 +12,7 @@ export function useBody<C = any>(
   pipeOrFn?: PipeOrFunction<any, C>,
 ): Middleware<any, { body: Awaited<C> }> {
   const transform = pipe(pipeOrFn ?? identity);
-  const meta = defaultBodySchema;
+  const meta = cloneDeep(defaultBodySchema);
   merge(meta, transform.metadata);
 
   const mw: Middleware<any, { body: Awaited<C> }> = async (ctx) => ({
@@ -22,7 +22,7 @@ export function useBody<C = any>(
   mw[MetaKeys.metaCallback] = (router, handler) => {
     set(router.metadata, [MiddlwareMetaKeys.requestBody], meta);
     if (handler) {
-      set(handler, [MiddlwareMetaKeys.requestBody], meta);
+      set(handler.metadata, [MiddlwareMetaKeys.requestBody], meta);
     }
   };
 

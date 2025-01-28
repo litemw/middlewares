@@ -1,5 +1,12 @@
 import { MetaKeys, Middleware } from '@litemw/router';
-import { identity, isFunction, isString, merge, set } from 'lodash-es';
+import {
+  cloneDeep,
+  identity,
+  isFunction,
+  isString,
+  merge,
+  set,
+} from 'lodash-es';
 import { pipe, PipeOrFunction } from '../pipes';
 import { Context } from 'koa';
 import { MiddlwareMetaKeys } from '../metadata';
@@ -38,7 +45,7 @@ export function useParam(
   const transform = pipe(
     pipeOrFn ?? (isFunction(paramOrPipe) ? paramOrPipe : identity),
   );
-  const meta = defaultParamSchema;
+  const meta = cloneDeep(defaultParamSchema);
   merge(meta, transform.metadata);
 
   const mw: Middleware = async (ctx: Context) => {
@@ -47,9 +54,10 @@ export function useParam(
 
   const path = [MiddlwareMetaKeys.pathParams, paramKey];
   mw[MetaKeys.metaCallback] = (router, handler) => {
-    set(router.metadata, path, meta);
     if (handler) {
-      set(handler, path, meta);
+      set(handler.metadata, path, meta);
+    } else {
+      set(router.metadata, path, meta);
     }
   };
 

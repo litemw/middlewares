@@ -1,6 +1,13 @@
 import { MetaKeys, Middleware } from '@litemw/router';
 import { pipe, PipeOrFunction } from '../pipes';
-import { identity, isFunction, isString, merge, set } from 'lodash-es';
+import {
+  cloneDeep,
+  identity,
+  isFunction,
+  isString,
+  merge,
+  set,
+} from 'lodash-es';
 import { Context } from 'koa';
 import { MiddlwareMetaKeys } from '../metadata';
 import { oas31 } from 'openapi3-ts';
@@ -38,7 +45,7 @@ export function useQuery(
   const transform = pipe(
     pipeOrFn ?? (isFunction(paramOrPipe) ? paramOrPipe : identity),
   );
-  const meta = defaultQuerySchema;
+  const meta = cloneDeep(defaultQuerySchema);
   merge(meta, transform.metadata);
 
   const mw: Middleware = async (ctx: Context) => {
@@ -49,7 +56,7 @@ export function useQuery(
   mw[MetaKeys.metaCallback] = (router, handler) => {
     set(router.metadata, path, meta);
     if (handler) {
-      set(handler, path, meta);
+      set(handler.metadata, path, meta);
     }
   };
 
