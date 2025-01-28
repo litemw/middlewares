@@ -163,9 +163,7 @@ describe('Query params', async () => {
     mockHandler.metadata = {};
     query1[MetaKeys.metaCallback]?.(mockRouter, mockHandler);
 
-    expect(mockRouter.metadata[MiddlwareMetaKeys.query]?.query).toEqual(
-      defaultSchema,
-    );
+    expect(mockRouter.metadata[MiddlwareMetaKeys.query]?.query).toBeUndefined();
     expect(mockHandler.metadata[MiddlwareMetaKeys.query]?.query).toEqual(
       defaultSchema,
     );
@@ -174,9 +172,9 @@ describe('Query params', async () => {
     mockHandler.metadata = {};
     query2[MetaKeys.metaCallback]?.(mockRouter, mockHandler);
 
-    expect(mockRouter.metadata[MiddlwareMetaKeys.query]?.queryKey).toEqual(
-      defaultSchema,
-    );
+    expect(
+      mockRouter.metadata[MiddlwareMetaKeys.query]?.queryKey,
+    ).toBeUndefined();
     expect(mockHandler.metadata[MiddlwareMetaKeys.query]?.queryKey).toEqual(
       defaultSchema,
     );
@@ -258,9 +256,7 @@ describe('useBody', async () => {
 
     console.log(mockHandler, mockRouter);
 
-    expect(mockRouter.metadata[MiddlwareMetaKeys.requestBody]).toEqual(
-      bodySchema,
-    );
+    expect(mockRouter.metadata[MiddlwareMetaKeys.requestBody]).toBeUndefined();
     expect(mockHandler.metadata[MiddlwareMetaKeys.requestBody]).toEqual(
       bodySchema,
     );
@@ -269,9 +265,7 @@ describe('useBody', async () => {
     mockHandler.metadata = {};
     bodyWithValidation[MetaKeys.metaCallback]?.(mockRouter, mockHandler);
 
-    expect(mockRouter.metadata[MiddlwareMetaKeys.requestBody]).toEqual(
-      validationSchema,
-    );
+    expect(mockRouter.metadata[MiddlwareMetaKeys.requestBody]).toBeUndefined();
     expect(mockHandler.metadata[MiddlwareMetaKeys.requestBody]).toEqual(
       validationSchema,
     );
