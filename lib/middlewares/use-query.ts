@@ -1,6 +1,6 @@
 import { MetaKeys, Middleware } from '@litemw/router';
 import { pipe, PipeOrFunction } from '../pipes';
-import { identity, isFunction, isString, set } from 'lodash-es';
+import { identity, isFunction, isString, merge, set } from 'lodash-es';
 import { Context } from 'koa';
 import { MiddlwareMetaKeys } from '../metadata';
 import { oas31 } from 'openapi3-ts';
@@ -38,7 +38,8 @@ export function useQuery(
   const transform = pipe(
     pipeOrFn ?? (isFunction(paramOrPipe) ? paramOrPipe : identity),
   );
-  const meta = transform.metadata ?? defaultQuerySchema;
+  const meta = defaultQuerySchema;
+  merge(meta, transform.metadata);
 
   const mw: Middleware = async (ctx: Context) => {
     return { [key]: await transform(ctx.query[paramKey]) };

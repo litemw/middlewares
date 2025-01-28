@@ -1,10 +1,12 @@
 import multer from '@koa/multer';
 import { MetaKeys, Middleware } from '@litemw/router';
 import {
+  chain,
   fromPairs,
   identity,
   isFunction,
   isNumber,
+  merge,
   noop,
   set,
 } from 'lodash-es';
@@ -40,7 +42,8 @@ export function useFiles(options?: multer.Options) {
 
   function single(fieldName: string, pipeOrFn?: PipeOrFunction) {
     const transform = pipe(pipeOrFn ?? identity);
-    const meta = transform.metadata ?? fileSchema;
+    const meta = fileSchema;
+    merge(meta, transform.metadata);
 
     const mw: Middleware = async (ctx) => {
       await upload.single(fieldName)(ctx, noop as Next);
@@ -83,18 +86,23 @@ export function useFiles(options?: multer.Options) {
       );
     };
 
-    mw[MetaKeys.metaCallback] = (router, handler) => {
-      fields.forEach((f) => {
-        const meta = transform.metadata ?? {
+    const meta = chain(fields)
+      .map((f) => [
+        f.name,
+        {
           schema: { ...multipleFilesSchema.schema, maxItems: f.maxCount },
-        };
-        const path = [MiddlwareMetaKeys.files, f.name];
+        },
+      ])
+      .fromPairs()
+      .value();
 
-        set(router, path, meta);
-        if (handler) {
-          set(handler, path, meta);
-        }
-      });
+    merge(meta, transform.metadata);
+
+    mw[MetaKeys.metaCallback] = (router, handler) => {
+      merge(router.metadata, { [MiddlwareMetaKeys.files]: meta });
+      if (handler) {
+        merge(handler.metadata, { [MiddlwareMetaKeys.files]: meta });
+      }
     };
 
     return mw;
@@ -130,9 +138,10 @@ export function useFiles(options?: multer.Options) {
       ),
       maxCount = isNumber(countOrPipe) ? countOrPipe : undefined;
 
-    const meta = transform.metadata ?? {
+    const meta = {
       schema: { ...multipleFilesSchema, maxCount },
     };
+    merge(meta, transform.metadata);
 
     const mw: Middleware = async (ctx) => {
       await upload.array(name, maxCount)(ctx, noop as Next);
@@ -158,7 +167,9 @@ export function useFiles(options?: multer.Options) {
 
   function any(pipeOrFn?: PipeOrFunction) {
     const transform = pipe(pipeOrFn ?? identity);
-    const meta = transform.metadata ?? multipleFilesSchema;
+    const meta = multipleFilesSchema;
+    merge(meta, transform.metadata);
+
     const mw: Middleware = async (ctx) => {
       await upload.any()(ctx, noop as Next);
       return { files: transform(ctx.files) as multer.File[] };

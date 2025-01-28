@@ -1,5 +1,5 @@
 import { MetaKeys, Middleware } from '@litemw/router';
-import { identity, isFunction, isString, set } from 'lodash-es';
+import { identity, isFunction, isString, merge, set } from 'lodash-es';
 import { pipe, PipeOrFunction } from '../pipes';
 import { Context } from 'koa';
 import { MiddlwareMetaKeys } from '../metadata';
@@ -38,7 +38,8 @@ export function useParam(
   const transform = pipe(
     pipeOrFn ?? (isFunction(paramOrPipe) ? paramOrPipe : identity),
   );
-  const meta = transform.metadata ?? defaultParamSchema;
+  const meta = defaultParamSchema;
+  merge(meta, transform.metadata);
 
   const mw: Middleware = async (ctx: Context) => {
     return { [key]: await transform(ctx.params[paramKey]) };
