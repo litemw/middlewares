@@ -67,7 +67,7 @@ export function validatePipe(
 
     const schemas = targetConstructorToSchema(
       schema,
-      (options as ClassParams).openapi,
+      (options as ClassParams)?.openapi,
     );
 
     validationPipe.metadata = { schema: schemas };
