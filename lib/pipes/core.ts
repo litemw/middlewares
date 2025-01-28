@@ -1,5 +1,5 @@
 import { TransformFunction } from '../core';
-import { isFunction } from 'lodash-es';
+import { assign, clone, isFunction } from 'lodash-es';
 
 export type PipeOrFunction<I = unknown, O = unknown> =
   | TransformFunction<I, O>
@@ -24,9 +24,9 @@ function newPipe(this: Pipe, pipeOrFnInner: PipeOrFunction): Pipe {
   fn.pipe = newPipe.bind(fn) as Pipe['pipe'];
   fn.flatPipe = newFlatPipe.bind(fn) as Pipe['flatPipe'];
 
-  fn.metadata = Object.assign({}, this.metadata);
+  fn.metadata = clone(this.metadata);
   if ('metadata' in pipeOrFnInner) {
-    Object.assign(fn.metadata, pipeOrFnInner.metadata);
+    assign(fn.metadata, pipeOrFnInner.metadata);
   }
 
   return fn;
