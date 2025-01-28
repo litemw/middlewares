@@ -1,6 +1,6 @@
 {
   "name": "@litemw/middlewares",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "VladDotH",
   "license": "MIT",
   "description": "Bunch of useful middlewares for litemw router",
