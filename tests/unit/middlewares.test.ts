@@ -5,6 +5,8 @@ import { z } from 'zod';
 import * as Koa from 'koa';
 import * as KoaRouter from 'koa-router';
 import { noop } from 'lodash-es';
+import { MetaKeys, RouteHandler, Router } from '@litemw/router';
+import { MiddlwareMetaKeys } from '../../lib/metadata';
 
 type Context = Koa.ParameterizedContext<
   any,
@@ -51,6 +53,46 @@ describe('Router params', async () => {
     expect(res5.paramStateKey).toBe('10.0.0.0');
     expect(res6.paramStateKey).toBeInstanceOf(z.ZodError);
   });
+
+  const mockRouter = { metadata: {} },
+    mockHandler = { metadata: {} };
+  tsafe.assert(tsafe.is<Router>(mockRouter));
+  tsafe.assert(tsafe.is<RouteHandler>(mockHandler));
+
+  const paramMeta = {
+    schema: {
+      type: 'string',
+    },
+  };
+
+  test('Metadata', () => {
+    mockRouter.metadata = {};
+    mockHandler.metadata = {};
+    param1[MetaKeys.metaCallback]?.(mockRouter, mockHandler);
+
+    expect(mockRouter.metadata).toEqual({});
+    expect(mockHandler.metadata[MiddlwareMetaKeys.pathParams]?.param).toEqual(
+      paramMeta,
+    );
+
+    mockRouter.metadata = {};
+    mockHandler.metadata = {};
+    param2[MetaKeys.metaCallback]?.(mockRouter, mockHandler);
+
+    expect(mockRouter.metadata).toEqual({});
+    expect(
+      mockHandler.metadata[MiddlwareMetaKeys.pathParams]?.paramKey,
+    ).toEqual(paramMeta);
+
+    mockRouter.metadata = {};
+    mockHandler.metadata = {};
+    param3[MetaKeys.metaCallback]?.(mockRouter);
+
+    expect(mockRouter.metadata[MiddlwareMetaKeys.pathParams]?.paramKey).toEqual(
+      paramMeta,
+    );
+    expect(mockHandler.metadata).toEqual({});
+  });
 });
 
 describe('Query params', async () => {
@@ -92,6 +134,64 @@ describe('Query params', async () => {
     expect(res5.queryStateKey).toBeInstanceOf(z.ZodError);
     expect(res6.queryStateKey).toBe('query-token-value');
   });
+
+  const mockRouter = { metadata: {} },
+    mockHandler = { metadata: {} };
+  tsafe.assert(tsafe.is<Router>(mockRouter));
+  tsafe.assert(tsafe.is<RouteHandler>(mockHandler));
+
+  const defaultSchema = {
+      schema: {
+        type: 'array',
+        items: {
+          type: 'string',
+        },
+      },
+    },
+    zodSchema = {
+      schema: {
+        type: 'string',
+        items: {
+          type: 'string',
+        },
+        pattern: 'token',
+      },
+    };
+
+  test('Metadata', () => {
+    mockRouter.metadata = {};
+    mockHandler.metadata = {};
+    query1[MetaKeys.metaCallback]?.(mockRouter, mockHandler);
+
+    expect(mockRouter.metadata[MiddlwareMetaKeys.query]?.query).toEqual(
+      defaultSchema,
+    );
+    expect(mockHandler.metadata[MiddlwareMetaKeys.query]?.query).toEqual(
+      defaultSchema,
+    );
+
+    mockRouter.metadata = {};
+    mockHandler.metadata = {};
+    query2[MetaKeys.metaCallback]?.(mockRouter, mockHandler);
+
+    expect(mockRouter.metadata[MiddlwareMetaKeys.query]?.queryKey).toEqual(
+      defaultSchema,
+    );
+    expect(mockHandler.metadata[MiddlwareMetaKeys.query]?.queryKey).toEqual(
+      defaultSchema,
+    );
+
+    mockRouter.metadata = {};
+    mockHandler.metadata = {};
+    query3[MetaKeys.metaCallback]?.(mockRouter);
+
+    expect(mockRouter.metadata[MiddlwareMetaKeys.query]?.queryKey).toEqual(
+      zodSchema,
+    );
+    expect(
+      mockHandler.metadata[MiddlwareMetaKeys.query]?.queryKey,
+    ).toBeUndefined();
+  });
 });
 
 describe('useBody', async () => {
@@ -124,5 +224,56 @@ describe('useBody', async () => {
 
     const res4 = await bodyWithValidation(ctx2, next);
     expect(res4.body).toBeInstanceOf(z.ZodError);
+  });
+
+  const mockRouter = { metadata: {} },
+    mockHandler = { metadata: {} };
+  tsafe.assert(tsafe.is<Router>(mockRouter));
+  tsafe.assert(tsafe.is<RouteHandler>(mockHandler));
+
+  const bodySchema = {
+      schema: {
+        type: 'object',
+      },
+    },
+    validationSchema = {
+      schema: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+          },
+          age: {
+            type: 'number',
+          },
+        },
+        required: ['name', 'age'],
+      },
+    };
+
+  test('Metadata', () => {
+    mockRouter.metadata = {};
+    mockHandler.metadata = {};
+    body[MetaKeys.metaCallback]?.(mockRouter, mockHandler);
+
+    console.log(mockHandler, mockRouter);
+
+    expect(mockRouter.metadata[MiddlwareMetaKeys.requestBody]).toEqual(
+      bodySchema,
+    );
+    expect(mockHandler.metadata[MiddlwareMetaKeys.requestBody]).toEqual(
+      bodySchema,
+    );
+
+    mockRouter.metadata = {};
+    mockHandler.metadata = {};
+    bodyWithValidation[MetaKeys.metaCallback]?.(mockRouter, mockHandler);
+
+    expect(mockRouter.metadata[MiddlwareMetaKeys.requestBody]).toEqual(
+      validationSchema,
+    );
+    expect(mockHandler.metadata[MiddlwareMetaKeys.requestBody]).toEqual(
+      validationSchema,
+    );
   });
 });
