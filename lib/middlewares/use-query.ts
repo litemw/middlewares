@@ -1,7 +1,13 @@
-import { Middleware } from '@litemw/router';
+import { MetaKeys, Middleware } from '@litemw/router';
 import { pipe, PipeOrFunction } from '../pipes';
-import { identity, isFunction, isString } from 'lodash-es';
+import { identity, isFunction, isString, set } from 'lodash-es';
 import { Context } from 'koa';
+import { MiddlwareMetaKeys } from '../metadata';
+import { oas31 } from 'openapi3-ts';
+
+const defaultQuerySchema: { schema: oas31.SchemaObject } = {
+  schema: { type: 'array', items: { type: 'string' } },
+};
 
 export function useQuery<const K extends string>(
   key: K,
@@ -9,7 +15,7 @@ export function useQuery<const K extends string>(
 
 export function useQuery<const K extends string, T = string>(
   key: K,
-  pipe: PipeOrFunction<string | string[] | undefined, T>,
+  pipeOrFn: PipeOrFunction<string | string[] | undefined, T>,
 ): Middleware<any, Record<K, Awaited<T>>>;
 
 export function useQuery<const K extends string>(
@@ -20,7 +26,7 @@ export function useQuery<const K extends string>(
 export function useQuery<const K extends string, T = string>(
   key: K,
   paramKey: string,
-  pipe: PipeOrFunction<string | string[] | undefined, T>,
+  pipeOrFn: PipeOrFunction<string | string[] | undefined, T>,
 ): Middleware<any, Record<K, Awaited<T>>>;
 
 export function useQuery(
@@ -32,8 +38,19 @@ export function useQuery(
   const transform = pipe(
     pipeOrFn ?? (isFunction(paramOrPipe) ? paramOrPipe : identity),
   );
+  const meta = transform.metadata ?? defaultQuerySchema;
 
-  return async (ctx: Context) => {
+  const mw: Middleware = async (ctx: Context) => {
     return { [key]: await transform(ctx.query[paramKey]) };
   };
+
+  const path = [MiddlwareMetaKeys.query, paramKey];
+  mw[MetaKeys.metaCallback] = (router, handler) => {
+    set(router.metadata, path, meta);
+    if (handler) {
+      set(handler, path, meta);
+    }
+  };
+
+  return mw;
 }

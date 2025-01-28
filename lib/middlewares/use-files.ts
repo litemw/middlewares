@@ -1,8 +1,30 @@
 import multer from '@koa/multer';
-import { Middleware } from '@litemw/router';
-import { fromPairs, identity, isFunction, isNumber, noop } from 'lodash-es';
+import { MetaKeys, Middleware } from '@litemw/router';
+import {
+  fromPairs,
+  identity,
+  isFunction,
+  isNumber,
+  noop,
+  set,
+} from 'lodash-es';
 import { Next } from 'koa';
-import { PipeOrFunction } from '../pipes';
+import { pipe, PipeOrFunction } from '../pipes';
+import { oas31 } from 'openapi3-ts';
+import { MiddlwareMetaKeys } from '../metadata';
+
+const fileSchema: { schema: oas31.SchemaObject } = {
+  schema: { type: 'string', format: 'binary' },
+};
+const multipleFilesSchema: { schema: oas31.SchemaObject } = {
+  schema: {
+    type: 'array',
+    items: {
+      format: 'binary',
+      type: 'string',
+    },
+  },
+};
 
 export function useFiles(options?: multer.Options) {
   const upload = multer(options);
@@ -13,18 +35,27 @@ export function useFiles(options?: multer.Options) {
 
   function single<T, F extends string, R>(
     fieldName: F,
-    pipe: PipeOrFunction<multer.File, R>,
+    pipeOrFn: PipeOrFunction<multer.File, R>,
   ): Middleware<T, Record<F, R>>;
 
-  function single<T, F extends string>(
-    fieldName: F,
-    pipe?: PipeOrFunction,
-  ): Middleware<T, Record<F, any>> {
-    const fn = pipe ?? identity;
-    return async (ctx) => {
+  function single(fieldName: string, pipeOrFn?: PipeOrFunction) {
+    const transform = pipe(pipeOrFn ?? identity);
+    const meta = transform.metadata ?? fileSchema;
+
+    const mw: Middleware = async (ctx) => {
       await upload.single(fieldName)(ctx, noop as Next);
-      return { [fieldName]: fn(ctx.file) } as Record<F, any>;
+      return { [fieldName]: transform(ctx.file) };
     };
+
+    const path = [MiddlwareMetaKeys.files, fieldName];
+    mw[MetaKeys.metaCallback] = (router, handler) => {
+      set(router.metadata, path, meta);
+      if (handler) {
+        set(handler, path, meta);
+      }
+    };
+
+    return mw;
   }
 
   function fields<T, const F extends string>(
@@ -33,24 +64,40 @@ export function useFiles(options?: multer.Options) {
 
   function fields<T, const F extends string, R>(
     fields: { name: F; maxCount: number }[],
-    pipe: PipeOrFunction<multer.File[], R>,
+    pipeOrFn: PipeOrFunction<multer.File[], R>,
   ): Middleware<T, Record<F, R>>;
 
-  function fields<T, const F extends string>(
-    fields: { name: F; maxCount: number }[],
-    pipe?: PipeOrFunction,
-  ): Middleware<T, Record<F, any>> {
-    const fn = pipe ?? identity;
-    return async (ctx) => {
+  function fields(
+    fields: { name: string; maxCount: number }[],
+    pipeOrFn?: PipeOrFunction,
+  ) {
+    const transform = pipe(pipeOrFn ?? identity);
+    const mw: Middleware = async (ctx) => {
       await upload.fields(fields)(ctx, noop as Next);
 
       return fromPairs(
         fields.map((field) => [
           field.name,
-          fn((ctx.files as Record<string, multer.File[]>)[field.name]),
+          transform((ctx.files as Record<string, multer.File[]>)[field.name]),
         ]),
-      ) as Record<F, any>;
+      );
     };
+
+    mw[MetaKeys.metaCallback] = (router, handler) => {
+      fields.forEach((f) => {
+        const meta = transform.metadata ?? {
+          schema: { ...multipleFilesSchema.schema, maxItems: f.maxCount },
+        };
+        const path = [MiddlwareMetaKeys.files, f.name];
+
+        set(router, path, meta);
+        if (handler) {
+          set(handler, path, meta);
+        }
+      });
+    };
+
+    return mw;
   }
 
   function array<T, F extends string>(
@@ -64,41 +111,68 @@ export function useFiles(options?: multer.Options) {
 
   function array<T, F extends string, R>(
     name: F,
-    pipe: PipeOrFunction<multer.File[], R>,
+    pipeOrFn: PipeOrFunction<multer.File[], R>,
   ): Middleware<T, Record<F, R>>;
 
   function array<T, F extends string, R>(
     name: F,
     maxCount: number,
-    pipe: PipeOrFunction<multer.File[], R>,
+    pipeOrFn: PipeOrFunction<multer.File[], R>,
   ): Middleware<T, Record<F, R>>;
 
-  function array<T, F extends string>(
-    name: F,
+  function array(
+    name: string,
     countOrPipe?: number | PipeOrFunction,
-    pipe?: PipeOrFunction,
-  ): Middleware<T, Record<F, any>> {
-    const fn = pipe ?? (isFunction(countOrPipe) ? countOrPipe : identity),
+    pipeOrFn?: PipeOrFunction,
+  ) {
+    const transform = pipe(
+        pipeOrFn ?? (isFunction(countOrPipe) ? countOrPipe : identity),
+      ),
       maxCount = isNumber(countOrPipe) ? countOrPipe : undefined;
 
-    return async (ctx) => {
-      await upload.array(name, maxCount)(ctx, noop as Next);
-      return { [name]: fn(ctx.files) } as Record<F, any>;
+    const meta = transform.metadata ?? {
+      schema: { ...multipleFilesSchema, maxCount },
     };
+
+    const mw: Middleware = async (ctx) => {
+      await upload.array(name, maxCount)(ctx, noop as Next);
+      return { [name]: transform(ctx.files) };
+    };
+
+    const path = [MiddlwareMetaKeys.files, name];
+    mw[MetaKeys.metaCallback] = (router, handler) => {
+      set(router.metadata, path, meta);
+      if (handler) {
+        set(handler, path, meta);
+      }
+    };
+
+    return mw;
   }
 
   function any<T>(): Middleware<T, Record<'files', multer.File[]>>;
 
   function any<T, R>(
-    pipe: PipeOrFunction<multer.File[], R>,
+    pipeOrFn: PipeOrFunction<multer.File[], R>,
   ): Middleware<T, Record<'files', R>>;
 
-  function any<T>(pipe?: PipeOrFunction): Middleware<T, Record<'files', any>> {
-    const fn = pipe ?? identity;
-    return async (ctx) => {
+  function any(pipeOrFn?: PipeOrFunction) {
+    const transform = pipe(pipeOrFn ?? identity);
+    const meta = transform.metadata ?? multipleFilesSchema;
+    const mw: Middleware = async (ctx) => {
       await upload.any()(ctx, noop as Next);
-      return { files: fn(ctx.files) as multer.File[] };
+      return { files: transform(ctx.files) as multer.File[] };
     };
+
+    const path = [MiddlwareMetaKeys.files, 'files'];
+    mw[MetaKeys.metaCallback] = (router, handler) => {
+      set(router.metadata, path, meta);
+      if (handler) {
+        set(handler, path, meta);
+      }
+    };
+
+    return mw;
   }
 
   return {

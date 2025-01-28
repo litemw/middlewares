@@ -1,12 +1,29 @@
-import { identity } from 'lodash-es';
-import { Pipe } from '../pipes';
-import { Middleware } from '@litemw/router';
+import { identity, set } from 'lodash-es';
+import { pipe, PipeOrFunction } from '../pipes';
+import { MetaKeys, Middleware } from '@litemw/router';
+import { MiddlwareMetaKeys } from '../metadata';
+import { oas31 } from 'openapi3-ts';
+
+const defaultBodySchema: { schema: oas31.SchemaObject } = {
+  schema: { type: 'object' },
+};
 
 export function useBody<C = any>(
-  pipe?: Pipe<any, C>,
+  pipeOrFn?: PipeOrFunction<any, C>,
 ): Middleware<any, { body: Awaited<C> }> {
-  const fn = pipe ?? identity;
-  return async (ctx) => ({
-    body: (await fn(ctx.request.body)) as any,
+  const transform = pipe(pipeOrFn ?? identity);
+  const meta = transform.metadata ?? defaultBodySchema;
+
+  const mw: Middleware<any, { body: Awaited<C> }> = async (ctx) => ({
+    body: (await transform(ctx.request.body)) as any,
   });
+
+  mw[MetaKeys.metaCallback] = (router, handler) => {
+    set(router.metadata, [MiddlwareMetaKeys.requestBody], meta);
+    if (handler) {
+      set(handler, [MiddlwareMetaKeys.requestBody], meta);
+    }
+  };
+
+  return mw;
 }
