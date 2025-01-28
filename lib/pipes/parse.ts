@@ -1,6 +1,7 @@
 import { pipe, Pipe } from './core';
 import * as _ from 'lodash-es';
 import { oas31 } from 'openapi3-ts';
+import { isArray, values } from 'lodash-es';
 
 export class ParseError extends Error {
   name = 'ParseError';
@@ -62,12 +63,15 @@ export function parseEnumPipe<E>(
   en: E,
   err = new ParseError('Parse enum pipe error'),
 ) {
+  const enumValues = isArray(en) ? en : values(en),
+    enumSet = new Set(enumValues);
+
   const parsePipe = pipe((val) => {
-    if (_.values(en).includes(val)) return val;
+    if (enumSet.has(val)) return val;
     else return err;
   }) as Pipe<unknown, E[keyof E] | ParseError>;
 
-  parsePipe.metadata = { ...enumSchema, schema: { enum: en } };
+  parsePipe.metadata = { ...enumSchema, schema: { enum: enumValues } };
   return parsePipe;
 }
 
