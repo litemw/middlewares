@@ -14,6 +14,8 @@ import {
 } from '../../lib';
 import { IsBoolean, IsNumber, IsString } from 'class-validator';
 import { z } from 'zod';
+import { values } from 'lodash-es';
+import { JSONSchema } from 'class-validator-jsonschema';
 
 describe('Pipes core functionality', () => {
   test('Pipe creation', () => {
@@ -62,6 +64,7 @@ describe('Parse pipes', () => {
 
     expect(res1).toEqual(1234);
     expect(res2).toBeInstanceOf(ParseError);
+    expect(p.metadata.schema).toEqual({ type: 'integer' });
   });
 
   test('parseFloatPipe', () => {
@@ -73,6 +76,7 @@ describe('Parse pipes', () => {
     expect(res1).toBeCloseTo(1234.567, 3);
     expect(res2).toBeCloseTo(1234.567, 3);
     expect(res3).toBeInstanceOf(ParseError);
+    expect(p.metadata.schema).toEqual({ type: 'number' });
   });
 
   test('parseBoolPipe', () => {
@@ -84,6 +88,7 @@ describe('Parse pipes', () => {
     expect(res1).toBe(true);
     expect(res2).toBe(false);
     expect(res3).toBeInstanceOf(ParseError);
+    expect(p.metadata.schema).toEqual({ type: 'boolean' });
   });
 
   test('defaultValuePipe', () => {
@@ -114,6 +119,7 @@ describe('Parse pipes', () => {
     expect(res2).toBe(E.key2);
     expect(res3).toBe(E.key9);
     expect(res4).toBeInstanceOf(ParseError);
+    expect(p.metadata.schema).toEqual({ enum: values(E) });
   });
 
   test('parseJSONPipe', () => {
@@ -125,6 +131,7 @@ describe('Parse pipes', () => {
     expect(res1).toEqual({ key: 'value' });
     expect(res2).toEqual([1, 2, 3]);
     expect(res3).toBeInstanceOf(ParseError);
+    expect(p.metadata.schema).toEqual({ type: 'object' });
   });
 });
 
@@ -141,6 +148,7 @@ describe('Throw pipe', () => {
 });
 
 describe('Validation pipes', () => {
+  @JSONSchema({ additionalProperties: false })
   class UserClass {
     @IsString()
     name: string;
@@ -157,6 +165,17 @@ describe('Validation pipes', () => {
       status: z.boolean(),
     })
     .strict();
+
+  const jsonSchema = {
+    type: 'object',
+    properties: {
+      name: { type: 'string' },
+      age: { type: 'number' },
+      status: { type: 'boolean' },
+    },
+    required: ['name', 'age', 'status'],
+    additionalProperties: false,
+  };
 
   const valid: unknown = { name: 'Vlad', age: 22, status: true },
     invalid: unknown = { name: 5140, age: '22', status: 'true' },
@@ -182,6 +201,7 @@ describe('Validation pipes', () => {
     expect(res2).toBeInstanceOf(ClassValidatorError);
     expect(res3).not.toBeInstanceOf(ClassValidatorError);
     expect(res4).toBeInstanceOf(ClassValidatorError);
+    expect(p.metadata.schema).toEqual(jsonSchema);
   });
 
   test('Zod', async () => {
@@ -198,5 +218,6 @@ describe('Validation pipes', () => {
     expect(res2).toBeInstanceOf(z.ZodError);
     expect(res3).toBeInstanceOf(z.ZodError);
     expect(res4).toBeInstanceOf(z.ZodError);
+    expect(p.metadata.schema).toEqual(jsonSchema);
   });
 });
