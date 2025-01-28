@@ -13,28 +13,28 @@ describe('Middlewares test', async () => {
 
   const router = createRouter('/api/:ver').use(useParam('ver'));
 
-  router
+  const paramHandler = router
     .get('/params/:param')
     .use(useParam('param'))
     .use((ctx) => {
       callback(ctx.state.ver, ctx.state.param);
     });
 
-  router
+  const queryHandler = router
     .get('/query')
     .use(useQuery('query'))
     .use((ctx) => {
       callback(ctx.state.ver, ctx.state.query);
     });
 
-  router
+  const bodyHandler = router
     .post('/body')
     .use(useBody())
     .use((ctx) => {
       callback(ctx.state.ver, ctx.state.body);
     });
 
-  router
+  const fileHandler = router
     .post('/file')
     .use(useFiles({ storage: memoryStorage() }).single('file'))
     .use((ctx) => {
@@ -103,5 +103,25 @@ describe('Middlewares test', async () => {
     expect(res[1]).toHaveProperty('mimetype', 'application/json');
     expect(res[1]).toHaveProperty('buffer');
     expect(res[1].buffer).toEqual(buffer);
+  });
+
+  const pathMeta = { 'path-params': { param: { schema: { type: 'string' } } } },
+    queryMeta = {
+      query: {
+        query: { schema: { type: 'array', items: { type: 'string' } } },
+      },
+    },
+    bodyMeta = { 'request-body': { schema: { type: 'object' } } },
+    filesMeta = {
+      files: { file: { schema: { type: 'string', format: 'binary' } } },
+    },
+    routerMeta = { 'path-params': { ver: { schema: { type: 'string' } } } };
+
+  test('Metadata', async () => {
+    expect(router.metadata).toEqual(routerMeta);
+    expect(paramHandler.metadata).toEqual(pathMeta);
+    expect(queryHandler.metadata).toEqual(queryMeta);
+    expect(bodyHandler.metadata).toEqual(bodyMeta);
+    expect(fileHandler.metadata).toEqual(filesMeta);
   });
 });
