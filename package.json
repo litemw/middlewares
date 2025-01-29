@@ -1,6 +1,6 @@
 {
   "name": "@litemw/middlewares",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "author": "VladDotH",
   "license": "MIT",
   "description": "Bunch of useful middlewares for litemw router",
@@ -20,19 +20,9 @@
     "lint:fix": "bun run lint --fix"
   },
   "dependencies": {
-    "@koa/multer": "3.0.2",
-    "@litemw/router": "0.1.4",
     "class-transformer": "0.5.1",
-    "class-validator": "0.14.1",
-    "class-validator-jsonschema": "5.0.1",
-    "koa": "2.15.3",
-    "koa-bodyparser": "4.4.1",
-    "koa-router": "12.0.1",
     "lodash-es": "4.17.21",
-    "openapi3-ts": "4.4.0",
-    "reflect-metadata": "0.2.2",
-    "zod": "3.24.1",
-    "zod-openapi": "4.2.3"
+    "reflect-metadata": "0.2.2"
   },
   "devDependencies": {
     "@types/bun": "1.2.1",
@@ -52,18 +42,21 @@
     "supertest": "7.0.0",
     "tsafe": "1.8.5",
     "tsconfig-paths": "4.2.0",
-    "typescript": "5.7.3"
+    "typescript": "5.7.3",
+    "class-validator": "^0.14.1",
+    "class-validator-jsonschema": "^5.0.1",
+    "zod-openapi": "^4.2.3"
   },
   "peerDependencies": {
-    "koa": "^2",
-    "@koa/multer": "^3",
-    "koa-bodyparser": "^4",
-    "koa-router": "^12",
-    "@litemw/router": "^0.1.2",
-    "class-validator": "*",
-    "zod": "*",
-    "class-validator-jsonschema": "*",
-    "zod-openapi": "*"
+    "koa": "^2.15.3",
+    "@koa/multer": "^3.0.2",
+    "koa-bodyparser": "^4.4.1",
+    "koa-router": "^13.0.1",
+    "@litemw/router": "^0.1.6",
+    "class-validator": "^0.14.1",
+    "zod": "^3.24.1",
+    "class-validator-jsonschema": "^5.0.1",
+    "zod-openapi": "^4.2.3"
   },
   "peerDependenciesMeta": {
     "koa": {
