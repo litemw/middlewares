@@ -1,6 +1,6 @@
 {
   "name": "@litemw/middlewares",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "author": "VladDotH",
   "license": "MIT",
   "description": "Bunch of useful middlewares for litemw router",
@@ -43,6 +43,7 @@
     "tsafe": "1.8.5",
     "tsconfig-paths": "4.2.0",
     "typescript": "5.7.3",
+    "openapi3-ts": "4.4.0",
     "class-validator": "^0.14.1",
     "class-validator-jsonschema": "^5.0.1",
     "zod-openapi": "^4.2.3"
