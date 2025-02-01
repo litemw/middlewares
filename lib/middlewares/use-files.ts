@@ -64,16 +64,16 @@ export function useFiles(options?: multer.Options) {
   }
 
   function fields<T, const F extends string>(
-    fields: { name: F; maxCount: number }[],
+    fields: { name: F; maxCount?: number }[],
   ): Middleware<T, Record<F, multer.File[]>>;
 
   function fields<T, const F extends string, R>(
-    fields: { name: F; maxCount: number }[],
+    fields: { name: F; maxCount?: number }[],
     pipeOrFn: PipeOrFunction<multer.File[], R>,
   ): Middleware<T, Record<F, R>>;
 
   function fields(
-    fields: { name: string; maxCount: number }[],
+    fields: { name: string; maxCount?: number }[],
     pipeOrFn?: PipeOrFunction,
   ) {
     const transform = pipe(pipeOrFn ?? identity);
