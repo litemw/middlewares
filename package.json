@@ -1,10 +1,11 @@
 {
   "name": "@litemw/middlewares",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "author": "VladDotH",
   "license": "MIT",
   "description": "Bunch of useful middlewares for litemw router",
   "private": false,
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/litemw/middlewares.git"
@@ -53,7 +54,7 @@
     "@koa/multer": "^3.0.2",
     "koa-bodyparser": "^4.4.1",
     "koa-router": "^13.0.1",
-    "@litemw/router": "^0.1.7",
+    "@litemw/router": "^0.1.8",
     "class-validator": "^0.14.1",
     "zod": "^3.24.1",
     "class-validator-jsonschema": "^5.0.1",
