@@ -1,20 +1,18 @@
 import multer from '@koa/multer';
 import { MetaKeys, Middleware } from '@litemw/router';
-import {
-  chain,
-  cloneDeep,
-  fromPairs,
-  identity,
-  isFunction,
-  isNumber,
-  merge,
-  noop,
-  set,
-} from 'lodash-es';
 import { Next } from 'koa';
 import { pipe, PipeOrFunction } from '../pipes';
 import { oas31 } from 'openapi3-ts';
 import { MiddlwareMetaKeys } from '../metadata';
+
+import cloneDeep from 'lodash/cloneDeep.js';
+import identity from 'lodash/identity.js';
+import merge from 'lodash/merge.js';
+import set from 'lodash/set.js';
+import noop from 'lodash/noop.js';
+import isNumber from 'lodash/isNumber.js';
+import isFunction from 'lodash/isFunction.js';
+import fromPairs from 'lodash/fromPairs.js';
 
 const fileSchema: { schema: oas31.SchemaObject } = {
   schema: { type: 'string', format: 'binary' },
@@ -88,15 +86,14 @@ export function useFiles(options?: multer.Options) {
       );
     };
 
-    const meta = chain(fields)
-      .map((f) => [
+    const meta = fromPairs(
+      fields.map((f) => [
         f.name,
         {
           schema: { ...multipleFilesSchema.schema, maxItems: f.maxCount },
         },
-      ])
-      .fromPairs()
-      .value();
+      ]),
+    );
 
     merge(meta, transform.metadata);
 

@@ -1,16 +1,15 @@
 import { MetaKeys, Middleware } from '@litemw/router';
-import {
-  cloneDeep,
-  identity,
-  isFunction,
-  isString,
-  merge,
-  set,
-} from 'lodash-es';
 import { pipe, PipeOrFunction } from '../pipes';
 import { Context } from 'koa';
 import { MiddlwareMetaKeys } from '../metadata';
 import { oas31 } from 'openapi3-ts';
+
+import cloneDeep from 'lodash/cloneDeep.js';
+import identity from 'lodash/identity.js';
+import merge from 'lodash/merge.js';
+import set from 'lodash/set.js';
+import isString from 'lodash/isString.js';
+import isFunction from 'lodash/isFunction.js';
 
 const defaultParamSchema: { schema: oas31.SchemaObject } = {
   schema: { type: 'string' },

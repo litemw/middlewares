@@ -1,8 +1,12 @@
-import { cloneDeep, identity, merge, set } from 'lodash-es';
 import { pipe, PipeOrFunction } from '../pipes';
 import { MetaKeys, Middleware } from '@litemw/router';
 import { MiddlwareMetaKeys } from '../metadata';
 import { oas31 } from 'openapi3-ts';
+
+import cloneDeep from 'lodash/cloneDeep.js';
+import identity from 'lodash/identity.js';
+import merge from 'lodash/merge.js';
+import set from 'lodash/set.js';
 
 const defaultBodySchema: { schema: oas31.SchemaObject } = {
   schema: { type: 'object' },

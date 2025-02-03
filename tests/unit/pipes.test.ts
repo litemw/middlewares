@@ -14,7 +14,7 @@ import {
 } from '../../lib';
 import { IsBoolean, IsNumber, IsString } from 'class-validator';
 import { z } from 'zod';
-import { values } from 'lodash-es';
+import { values } from 'lodash';
 import { JSONSchema } from 'class-validator-jsonschema';
 
 describe('Pipes core functionality', () => {

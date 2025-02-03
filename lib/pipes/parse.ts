@@ -1,7 +1,12 @@
 import { pipe, Pipe } from './core';
-import * as _ from 'lodash-es';
 import { oas31 } from 'openapi3-ts';
-import { isArray, values } from 'lodash-es';
+
+import isArray from 'lodash/isArray.js';
+import isInteger from 'lodash/isInteger.js';
+import isString from 'lodash/isString.js';
+import toLower from 'lodash/toLower.js';
+import values from 'lodash/values.js';
+import toString from 'lodash/toString.js';
 
 export class ParseError extends Error {
   name = 'ParseError';
@@ -19,10 +24,10 @@ export function parseIntPipe(
   radix = 10,
   err = new ParseError('Parse int pipe error'),
 ) {
-  const parsePipe = pipe(_.toString)
+  const parsePipe = pipe<unknown, string>(toString)
     .pipe((val) => parseInt(val, radix))
     .pipe((val) => {
-      if (!_.isInteger(val)) return err;
+      if (!isInteger(val)) return err;
       return val;
     });
 
@@ -31,10 +36,10 @@ export function parseIntPipe(
 }
 
 export function parseFloatPipe(err = new ParseError('Parse float pipe error')) {
-  const parsePipe = pipe(_.toString)
+  const parsePipe = pipe<unknown, string>(toString)
     .pipe(parseFloat)
     .pipe((val) => {
-      if (!_.isFinite(val)) return err;
+      if (!isFinite(val)) return err;
       return val;
     });
 
@@ -43,8 +48,8 @@ export function parseFloatPipe(err = new ParseError('Parse float pipe error')) {
 }
 
 export function parseBoolPipe(err = new ParseError('Parse bool pipe error')) {
-  const parsePipe = pipe(_.toString)
-    .pipe((val) => _.toLower(val.toString()))
+  const parsePipe = pipe<unknown, string>(toString)
+    .pipe((val) => toLower(val.toString()))
     .pipe((val) => {
       if (val === 'true') return true;
       else if (val === 'false') return false;
@@ -79,7 +84,7 @@ export function parseJSONPipe<T = any>(
   err = new ParseError('Parse array pipe error'),
 ): Pipe<unknown, T | ParseError> {
   const parsePipe = pipe((val: unknown) => {
-    if (_.isString(val)) {
+    if (isString(val)) {
       try {
         return JSON.parse(val);
       } catch (parseErr) {

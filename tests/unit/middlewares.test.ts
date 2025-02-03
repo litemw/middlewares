@@ -4,7 +4,7 @@ import * as tsafe from 'tsafe';
 import { z } from 'zod';
 import * as Koa from 'koa';
 import * as KoaRouter from 'koa-router';
-import { noop } from 'lodash-es';
+import { noop } from 'lodash';
 import { MetaKeys, RouteHandler, Router } from '@litemw/router';
 import { MiddlwareMetaKeys } from '../../lib/metadata';
 

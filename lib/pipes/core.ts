@@ -1,5 +1,8 @@
 import { TransformFunction } from '../core';
-import { assign, clone, isFunction } from 'lodash-es';
+
+import assign from 'lodash/assign.js';
+import clone from 'lodash/clone.js';
+import isFunction from 'lodash/isFunction.js';
 
 export type PipeOrFunction<I = unknown, O = unknown> =
   | TransformFunction<I, O>
