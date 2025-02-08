@@ -3,15 +3,20 @@ import { useBody, useParam, useQuery, validatePipe } from '../../lib';
 import * as tsafe from 'tsafe';
 import { z } from 'zod';
 import * as Koa from 'koa';
-import * as KoaRouter from 'koa-router';
+import * as KoaRouter from '@koa/router';
 import { noop } from 'lodash';
-import { MetaKeys, RouteHandler, Router } from '@litemw/router';
-import { MiddlwareMetaKeys } from '../../lib/metadata';
+import {
+  DefaultState,
+  MetaKeys,
+  NextObject,
+  RouteHandler,
+  Router,
+} from '@litemw/router';
+import { MiddlwareMetaKeys } from '../../lib';
 
 type Context = Koa.ParameterizedContext<
-  any,
-  Koa.DefaultContext & KoaRouter.IRouterParamContext<any, {}>,
-  unknown
+  DefaultState,
+  Koa.DefaultContext & KoaRouter.RouterParamContext
 >;
 
 describe('Router params', async () => {
@@ -31,7 +36,7 @@ describe('Router params', async () => {
   tsafe.assert(tsafe.is<Context>(ctx1));
   tsafe.assert(tsafe.is<Context>(ctx2));
   tsafe.assert(tsafe.is<Context>(ctx3));
-  tsafe.assert(tsafe.is<Koa.Next>(next));
+  tsafe.assert(tsafe.is<NextObject>(next));
 
   test('Default params', async () => {
     const res1 = await param1(ctx1, next);
@@ -112,7 +117,7 @@ describe('Query params', async () => {
   tsafe.assert(tsafe.is<Context>(ctx1));
   tsafe.assert(tsafe.is<Context>(ctx2));
   tsafe.assert(tsafe.is<Context>(ctx3));
-  tsafe.assert(tsafe.is<Koa.Next>(next));
+  tsafe.assert(tsafe.is<NextObject>(next));
 
   test('Default query', async () => {
     const res1 = await query1(ctx1, next);
@@ -206,7 +211,7 @@ describe('useBody', async () => {
 
   tsafe.assert(tsafe.is<Context>(ctx1));
   tsafe.assert(tsafe.is<Context>(ctx2));
-  tsafe.assert(tsafe.is<Koa.Next>(next));
+  tsafe.assert(tsafe.is<NextObject>(next));
 
   test('Any body', async () => {
     const res1 = await body(ctx1, next);

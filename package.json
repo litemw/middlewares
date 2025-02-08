@@ -1,6 +1,6 @@
 {
   "name": "@litemw/middlewares",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "author": "VladDotH",
   "license": "MIT",
   "description": "Bunch of useful middlewares for litemw router",
@@ -31,7 +31,7 @@
     "@types/bun": "1.2.1",
     "@types/koa": "2.15.0",
     "@types/koa-bodyparser": "4.3.12",
-    "@types/koa-router": "7.4.8",
+    "@types/koa__router": "^12.0.4",
     "@types/koa__multer": "2.0.7",
     "@types/lodash": "^4.17.15",
     "@types/node": "20.17.16",
@@ -55,8 +55,8 @@
     "koa": "^2.15.3",
     "@koa/multer": "^3.0.2",
     "koa-bodyparser": "^4.4.1",
-    "koa-router": "^13.0.1",
-    "@litemw/router": "^0.2.0",
+    "@koa/router": "^13.1.0",
+    "@litemw/router": "^0.2.1",
     "class-validator": "^0.14.1",
     "zod": "^3.24.1",
     "class-validator-jsonschema": "^5.0.1",
@@ -72,7 +72,7 @@
     "koa-bodyparser": {
       "optional": false
     },
-    "koa-router": {
+    "@koa/router": {
       "optional": false
     },
     "@litemw/router": {
