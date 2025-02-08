@@ -115,7 +115,7 @@ export function useFiles(options?: multer.Options) {
   function array<T, F extends string>(
     name: F,
     maxCount: number,
-  ): Middleware<T, Record<F, multer.File>>;
+  ): Middleware<T, Record<F, multer.File[]>>;
 
   function array<T, F extends string, R>(
     name: F,
